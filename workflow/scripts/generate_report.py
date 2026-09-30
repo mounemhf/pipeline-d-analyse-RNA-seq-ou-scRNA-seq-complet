@@ -26,7 +26,7 @@ LINEAGES = [
      "(typically 50-70%), and their dominance here is consistent with a "
      "healthy donor profile."),
     ("NK cells", ["nk"],
-     ["GNLY", "NKG7", "KLRD1", "FCGR3A"],
+     ["GNLY", "NKG7", "KLRD1", "FCGR3A", "CST7", "GZMA", "CTSW", "PRF1"],
      "NK cells are the cytotoxic arm of the innate lymphoid compartment "
      "and typically represent 5-15% of PBMCs."),
     ("B cells", ["b cell", "plasma"],

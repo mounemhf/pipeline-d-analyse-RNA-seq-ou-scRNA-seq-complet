@@ -59,12 +59,14 @@ def main():
         over_clustering="leiden" if args.majority_voting else None,
     )
     # to_adata() does not take the target AnnData; copy the prediction
-    # columns explicitly (predicted_labels, majority_voting, conf_score)
+    # columns explicitly. conf_score is not stored in predicted_labels:
+    # like celltypist's own to_adata(), derive it from probability_matrix.
     label_col = "majority_voting" if args.majority_voting else "predicted_labels"
-    insert_cols = ["predicted_labels", "conf_score"]
+    insert_cols = ["predicted_labels"]
     if args.majority_voting:
         insert_cols.append("majority_voting")
     adata.obs[insert_cols] = predictions.predicted_labels[insert_cols]
+    adata.obs["conf_score"] = predictions.probability_matrix.max(axis=1).values
 
     adata.obs["cell_type"] = adata.obs[label_col]
     log.info("Predicted cell types: %s",

@@ -85,7 +85,7 @@ The final report is written to `report/report.md`.
 > **First run:** expect ~20-30 minutes, mostly one-time conda environment
 > creation; the analysis itself takes a few minutes on 4 cores. The first
 > `annotate` run also downloads the CellTypist reference models
-> (~200 MB, cached in `~/.celltypist`) — internet access is required once.
+> (~100 MB, cached in `~/.celltypist`) — internet access is required once.
 
 ## Repository structure
 
