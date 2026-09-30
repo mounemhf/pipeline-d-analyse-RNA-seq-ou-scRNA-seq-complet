@@ -65,8 +65,8 @@ Requirements: `git`, `bash`, and [conda/mamba](https://docs.conda.io/) with
 Snakemake 8 available (`conda install -c conda-forge -c bioconda snakemake=8`).
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/scrnaseq-pipeline.git
-cd scrnaseq-pipeline
+git clone https://github.com/mounemhf/pipeline-d-analyse-RNA-seq-ou-scRNA-seq-complet.git
+cd pipeline-d-analyse-RNA-seq-ou-scRNA-seq-complet
 
 # 1. Download the data (matrix ~28 MB; add --with-fastq for read-level QC, ~4.5 GB)
 bash data/download_data.sh --with-fastq
