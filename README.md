@@ -135,4 +135,4 @@ This project is released under the [MIT License](LICENSE).
 
 ## Author
 
-Leona — MSc Bioinformatics. Feedback and contributions are welcome via issues.
+MOUNEM HOUF - MSc Bioinformatics. Feedback and contributions are welcome via issues.
