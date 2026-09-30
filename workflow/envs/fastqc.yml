@@ -1,0 +1,6 @@
+name: scrnaseq-fastqc
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - fastqc=0.12.1

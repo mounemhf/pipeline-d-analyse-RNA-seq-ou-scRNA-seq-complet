@@ -1,0 +1,47 @@
+"""
+Reproducible scRNA-seq analysis pipeline — 10x Genomics PBMC 3k (v3 chemistry).
+
+Run from the repository root:
+    snakemake --use-conda --cores 4
+"""
+
+configfile: "config/config.yaml"
+
+
+MATRIX_DIR = config["paths"]["matrix"]
+LOG_DIR = config["paths"]["logs"]
+
+# Rule modules, enabled phase by phase:
+include: "rules/qc.smk"          # FastQC / MultiQC on raw reads (skipped if no FASTQ)
+include: "rules/preprocess.smk"  # filtering, normalisation, HVG, PCA
+include: "rules/cluster.smk"     # Scrublet, Leiden, UMAP
+include: "rules/annotate.smk"    # CellTypist + marker genes
+include: "rules/report.smk"      # final report
+
+
+def pipeline_targets():
+    """Final targets; read-level QC is included only when FASTQs are present."""
+    targets = [
+        f"{config['paths']['report']}/report.md",
+    ]
+    if FASTQ_FILES:
+        targets.append(f"{config['paths']['results']}/qc/multiqc_report.html")
+    return targets
+
+
+rule all:
+    input:
+        pipeline_targets(),
+    default_target: True
+
+
+rule fetch_matrix:
+    """Download and extract the Cell Ranger filtered gene-barcode matrix."""
+    output:
+        matrix=f"{MATRIX_DIR}/matrix.mtx",
+        barcodes=f"{MATRIX_DIR}/barcodes.tsv",
+        genes=f"{MATRIX_DIR}/genes.tsv",
+    log:
+        f"{LOG_DIR}/fetch_matrix.log",
+    shell:
+        "bash data/download_data.sh --matrix-only > {log} 2>&1"

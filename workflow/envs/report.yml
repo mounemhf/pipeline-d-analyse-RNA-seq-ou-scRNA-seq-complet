@@ -1,0 +1,7 @@
+name: scrnaseq-report
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11.*
+  - pandas=2.2.*

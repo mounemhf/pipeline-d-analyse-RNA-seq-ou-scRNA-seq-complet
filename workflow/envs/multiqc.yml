@@ -1,0 +1,7 @@
+name: scrnaseq-multiqc
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11.*
+  - multiqc=1.25.1

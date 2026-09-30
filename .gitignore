@@ -1,0 +1,43 @@
+# --- Raw and processed data (never commit) ---
+data/raw/
+data/processed/
+data/*.tar
+data/*.tar.gz
+
+# --- Generated results ---
+# Everything is ignored except the final figures, which are committed as the
+# portfolio showcase so that the README and report render on GitHub.
+results/*
+!results/README.md
+!results/figures/
+results/figures/*
+!results/figures/*.png
+
+# --- Generated report ---
+# The final report.md is committed as the showcase deliverable.
+report/*
+!report/README.md
+!report/report.md
+
+# --- Snakemake / conda ---
+.snakemake/
+*.log
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+
+# --- Editors / OS ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# --- Secrets ---
+.env
+*.pem
+*.key

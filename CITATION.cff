@@ -1,0 +1,54 @@
+cff-version: 1.2.0
+message: "If you use this pipeline in your work, please cite it as below."
+type: software
+title: "scrnaseq-pipeline: a reproducible single-cell RNA-seq analysis workflow (10x Genomics PBMC 3k)"
+authors:
+  - given-names: "MOUNEM"
+    family-names: "HOUF" # replace with your last name before publishing
+license: MIT
+version: 0.1.0
+repository-code: "https://github.com/mounemhf/pipeline-d-analyse-RNA-seq-ou-scRNA-seq-complet"
+keywords:
+  - single-cell RNA-seq
+  - bioinformatics
+  - snakemake
+  - scanpy
+  - reproducibility
+references:
+  - type: article
+    title: "SCANPY: large-scale single-cell gene expression data analysis"
+    authors:
+      - family-names: Wolf
+        given-names: F. Alexander
+      - family-names: Angerer
+        given-names: Philipp
+      - family-names: Theis
+        given-names: Fabian J.
+    journal: "Genome Biology"
+    year: 2018
+    doi: "10.1186/s13059-017-1382-0"
+  - type: article
+    title: "From Louvain to Leiden: guaranteeing well-connected communities"
+    authors:
+      - family-names: Traag
+        given-names: Vincent A.
+      - family-names: Waltman
+        given-names: Ludo
+      - family-names: van Eck
+        given-names: Nees Jan
+    journal: "Scientific Reports"
+    year: 2019
+    doi: "10.1038/s41598-019-41695-z"
+  - type: article
+    title: "Cross-tissue immune cell analysis reveals tissue-specific features in humans"
+    authors:
+      - family-names: Domínguez Conde
+        given-names: C.
+      - family-names: Xu
+        given-names: C.
+    journal: "Science"
+    year: 2022
+    doi: "10.1126/science.abl5197"
+  - type: web
+    title: "10x Genomics — PBMC 3k dataset (v3 chemistry)"
+    url: "https://www.10xgenomics.com/datasets/3-k-pbm-cs-from-a-healthy-donor-1-standard-1-1-0"

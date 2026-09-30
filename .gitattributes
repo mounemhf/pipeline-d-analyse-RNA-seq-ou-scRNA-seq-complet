@@ -1,0 +1,12 @@
+# Normalise line endings on commit; force LF for anything executed or
+# consumed by Unix tools (bash scripts, Snakemake, conda envs).
+* text=auto
+*.sh       text eol=lf
+*.py       text eol=lf
+*.smk      text eol=lf
+Snakefile  text eol=lf
+*.yml      text eol=lf
+*.yaml     text eol=lf
+*.md       text eol=lf
+*.cff      text eol=lf
+*.ipynb    text eol=lf

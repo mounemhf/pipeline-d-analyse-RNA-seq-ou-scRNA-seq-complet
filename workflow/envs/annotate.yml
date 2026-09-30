@@ -1,0 +1,14 @@
+name: scrnaseq-annotate
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11.*
+  - celltypist=1.6.3
+  - scanpy=1.10.4
+  - anndata=0.10.9
+  - numpy=1.26.*
+  - pandas=2.2.*
+  - matplotlib=3.9.*
+  - leidenalg=0.10.2
+  - python-igraph=0.11.8

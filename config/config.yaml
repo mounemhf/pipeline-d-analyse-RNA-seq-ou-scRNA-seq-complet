@@ -1,0 +1,59 @@
+# Central configuration for the scRNA-seq pipeline.
+# Every path and parameter used by the workflow is defined here;
+# rules and scripts read from this file only (no hardcoded paths).
+
+dataset:
+  name: "pbmc3k"
+  genome_build: "hg19"
+  matrix_url: "https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz"
+  fastq_url: "https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_fastqs.tar"
+
+paths:
+  raw_data: "data/raw"
+  matrix: "data/raw/filtered_gene_bc_matrices/hg19"
+  fastq_dir: "data/raw/pbmc3k_fastqs"
+  results: "results"
+  figures: "results/figures"
+  tables: "results/tables"
+  logs: "results/logs"
+  report: "report"
+
+# Cell- and gene-level quality control (scanpy)
+qc:
+  min_genes_per_cell: 200
+  min_cells_per_gene: 3
+  max_pct_mito: 5.0        # percent of mitochondrial counts above which a cell is dropped
+  max_counts: 15000        # upper bound on total counts per cell
+  mito_prefix: "MT-"       # hg19 mitochondrial gene prefix
+
+# Doublet detection (scrublet)
+doublets:
+  expected_doublet_rate: 0.06
+
+# Normalisation and dimensionality reduction
+preprocessing:
+  target_sum: 10000        # counts per cell after normalisation
+  n_top_hvg: 2000
+  n_pcs: 40
+  n_neighbors: 10
+
+# Leiden clustering
+clustering:
+  leiden_resolution: 0.5
+
+# Automated cell-type annotation (CellTypist)
+annotation:
+  celltypist_model: "Immune_All_High.pkl"
+  majority_voting: true
+
+# Marker genes per cluster (scanpy rank_genes_groups)
+markers:
+  n_genes: 25
+  method: "wilcoxon"
+
+# Figures
+figures:
+  dpi: 300
+
+seed: 42
+threads: 4
