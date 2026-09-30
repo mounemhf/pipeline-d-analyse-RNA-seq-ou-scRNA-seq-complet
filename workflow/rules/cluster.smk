@@ -8,9 +8,14 @@ rule cluster:
     output:
         h5ad=f"{RESULTS}/processed/pbmc3k_clustered.h5ad",
         summary=f"{TABLES}/cluster_summary.json",
+        figures=[
+            f"{FIGURES}/doublet_histogram.png",
+            f"{FIGURES}/umap_clusters.png",
+        ],
     params:
         figures_dir=FIGURES,
         expected_doublet_rate=config["doublets"]["expected_doublet_rate"],
+        n_top_hvg=config["preprocessing"]["n_top_hvg"],
         n_neighbors=config["preprocessing"]["n_neighbors"],
         n_pcs=config["preprocessing"]["n_pcs"],
         leiden_resolution=config["clustering"]["leiden_resolution"],
@@ -30,6 +35,7 @@ rule cluster:
             --summary {output.summary} \
             --figures-dir {params.figures_dir} \
             --expected-doublet-rate {params.expected_doublet_rate} \
+            --n-top-hvg {params.n_top_hvg} \
             --n-neighbors {params.n_neighbors} \
             --n-pcs {params.n_pcs} \
             --leiden-resolution {params.leiden_resolution} \

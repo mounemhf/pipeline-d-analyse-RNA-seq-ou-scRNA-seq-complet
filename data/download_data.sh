@@ -3,7 +3,7 @@
 #
 # Two artefacts are available:
 #   - filtered gene-barcode matrix (~28 MB): entry point of the analysis
-#   - raw FASTQ files (~4.5 GB): only used for FastQC/MultiQC read-level QC
+#   - raw FASTQ files (~17 GB): only used for FastQC/MultiQC read-level QC
 #
 # The pipeline itself consumes the filtered matrix; read alignment and UMI
 # counting (Cell Ranger) are out of scope and documented in the README.
@@ -76,7 +76,7 @@ fetch_fastq() {
         echo "[skip] FASTQ files already present in ${FASTQ_DIR}"
         return
     fi
-    echo "[warn] FASTQ archive is ~4.5 GB; this may take a while."
+    echo "[warn] FASTQ archive is ~17 GB; this may take a while."
     local archive="${RAW_DIR}/pbmc3k_fastqs.tar"
     download "${FASTQ_URL}" "${archive}"
     tar -xf "${archive}" -C "${RAW_DIR}"

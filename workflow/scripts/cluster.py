@@ -30,6 +30,7 @@ def parse_args():
     p.add_argument("--summary", required=True, help="Output JSON summary file")
     p.add_argument("--figures-dir", required=True, help="Directory for figures")
     p.add_argument("--expected-doublet-rate", type=float, default=0.06)
+    p.add_argument("--n-top-hvg", type=int, default=2000)
     p.add_argument("--n-neighbors", type=int, default=10)
     p.add_argument("--n-pcs", type=int, default=40)
     p.add_argument("--leiden-resolution", type=float, default=0.5)
@@ -74,6 +75,17 @@ def main():
     log.info("Detected %d / %d doublets (%.1f%%)",
              n_doublets, adata.n_obs, 100 * n_doublets / adata.n_obs)
     adata = adata[~adata.obs["predicted_doublet"]].copy()
+
+    # Recompute HVG and PCA after doublet removal so that doublets do not
+    # shape the embedding used for clustering. .raw holds log-normalised data.
+    log.info("Recomputing HVG and PCA on %d cells after doublet removal", adata.n_obs)
+    adata = adata.raw.to_adata()
+    sc.pp.highly_variable_genes(adata, n_top_genes=args.n_top_hvg, flavor="seurat")
+    # Keep log-normalised data in .raw for downstream annotation and markers
+    adata.raw = adata
+    sc.pp.scale(adata, max_value=10)
+    sc.pp.pca(adata, n_comps=args.n_pcs, mask_var="highly_variable",
+              svd_solver="arpack", random_state=args.seed)
 
     # --- Neighbourhood graph, Leiden clustering, UMAP ---
     log.info("Computing neighbourhood graph (%d neighbors, %d PCs)",

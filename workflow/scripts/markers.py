@@ -29,6 +29,9 @@ def parse_args():
     p.add_argument("--groupby", default="leiden", help=".obs column to compare")
     p.add_argument("--method", default="wilcoxon",
                    choices=["wilcoxon", "t-test", "t-test_overestim_var", "logreg"])
+    p.add_argument("--exclude-regex", default="^RP[SL]",
+                   help="Genes matching this regex (e.g. ribosomal) are excluded; "
+                        "empty string disables filtering")
     p.add_argument("--n-genes", type=int, default=25,
                    help="Top markers per cluster to export")
     p.add_argument("--dotplot-n-genes", type=int, default=5,
@@ -48,12 +51,20 @@ def main():
     log.info("Loading %s", args.input)
     adata = sc.read_h5ad(args.input)
 
+    # Work on the log-normalised expression (.raw); drop non-informative
+    # ubiquitous genes (ribosomal by default) before ranking
+    work = adata.raw.to_adata()
+    if args.exclude_regex:
+        keep = ~work.var_names.str.match(args.exclude_regex)
+        log.info("Excluding %d genes matching '%s'",
+                 int((~keep).sum()), args.exclude_regex)
+        work = work[:, keep].copy()
+
     log.info("rank_genes_groups by '%s' (%s)", args.groupby, args.method)
-    sc.tl.rank_genes_groups(adata, groupby=args.groupby, method=args.method,
-                            use_raw=True)
+    sc.tl.rank_genes_groups(work, groupby=args.groupby, method=args.method)
 
     # Full table: names, scores, logfoldchanges, pvals, pvals_adj per group
-    df = sc.get.rank_genes_groups_df(adata, group=None)
+    df = sc.get.rank_genes_groups_df(work, group=None)
     df.to_csv(tabdir / "marker_genes_all.csv", index=False)
 
     top = df.groupby("group").head(args.n_genes)
@@ -62,7 +73,7 @@ def main():
     log.info("Wrote %s (%d rows) and full table (%d rows)",
              top_path, len(top), len(df))
 
-    sc.pl.rank_genes_groups_dotplot(adata, n_genes=args.dotplot_n_genes,
+    sc.pl.rank_genes_groups_dotplot(work, n_genes=args.dotplot_n_genes,
                                     standard_scale="var", show=False)
     plt.savefig(figdir / "marker_dotplot.png", dpi=args.dpi, bbox_inches="tight")
     plt.close()

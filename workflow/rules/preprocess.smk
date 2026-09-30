@@ -15,6 +15,12 @@ rule preprocess:
     output:
         h5ad=f"{RESULTS}/processed/pbmc3k_preprocessed.h5ad",
         summary=f"{TABLES}/preprocess_summary.json",
+        figures=[
+            f"{FIGURES}/qc_violins_prefilter.png",
+            f"{FIGURES}/qc_violins_postfilter.png",
+            f"{FIGURES}/highly_variable_genes.png",
+            f"{FIGURES}/pca_variance_ratio.png",
+        ],
     params:
         figures_dir=FIGURES,
         min_genes=config["qc"]["min_genes_per_cell"],

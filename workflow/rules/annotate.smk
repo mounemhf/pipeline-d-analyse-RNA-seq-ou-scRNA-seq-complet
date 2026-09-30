@@ -11,6 +11,7 @@ rule annotate:
         h5ad=f"{RESULTS}/processed/pbmc3k_annotated.h5ad",
         by_cluster=f"{TABLES}/celltype_by_cluster.csv",
         cluster_labels=f"{TABLES}/cluster_annotation.csv",
+        figure=f"{FIGURES}/umap_celltypes.png",
     params:
         figures_dir=FIGURES,
         tables_dir=TABLES,
@@ -44,11 +45,13 @@ rule markers:
     output:
         all=f"{TABLES}/marker_genes_all.csv",
         top=f"{TABLES}/marker_genes_top{config['markers']['n_genes']}.csv",
+        figure=f"{FIGURES}/marker_dotplot.png",
     params:
         figures_dir=FIGURES,
         tables_dir=TABLES,
         n_genes=config["markers"]["n_genes"],
         method=config["markers"]["method"],
+        exclude_regex=config["markers"]["exclude_regex"],
         dpi=config["figures"]["dpi"],
     conda:
         "../envs/markers.yml"
@@ -64,6 +67,7 @@ rule markers:
             --figures-dir {params.figures_dir} \
             --n-genes {params.n_genes} \
             --method {params.method} \
+            --exclude-regex "{params.exclude_regex}" \
             --dpi {params.dpi} \
             > {log} 2>&1
         """

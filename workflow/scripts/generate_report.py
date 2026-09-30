@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 # canonical markers, and a fixed biological context sentence.
 LINEAGES = [
     ("T cells", ["t cell", "cd4", "cd8", "treg", "mait"],
-     ["CD3D", "CD3E", "IL7R", "CD8A", "CD8B"],
+     ["CD3D", "CD3E", "CD3G", "IL7R", "CD8A", "CD8B"],
      "T lymphocytes are expected to form the largest PBMC fraction "
      "(typically 50-70%), and their dominance here is consistent with a "
      "healthy donor profile."),
@@ -36,8 +36,7 @@ LINEAGES = [
     ("Monocytes", ["mono", "macrophage"],
      ["CD14", "LYZ", "S100A8", "S100A9", "FCGR3A", "MS4A7", "LST1"],
      "Monocytes are the main circulating myeloid population (10-20% of "
-     "PBMCs); classical CD14+ and non-classical FCGR3A (CD16)+ subsets are "
-     "routinely resolved at this clustering resolution."),
+     "PBMCs)."),
     ("Dendritic cells", ["dc", "dendritic"],
      ["FCER1A", "CST3", "CLEC9A", "CLEC10A"],
      "Dendritic cells are rare in peripheral blood (<2%) and surface here "
@@ -85,11 +84,12 @@ def figure(name: str, caption: str, figdir: Path, prefix: str) -> str:
 
 
 def lineage_paragraph(name, keywords, canonical, context, cluster_ann, markers):
+    """Build one interpretation paragraph; returns (text, had_caution)."""
     mask = cluster_ann["cell_type"].str.lower().apply(
         lambda s: any(k in s for k in keywords))
     sub = cluster_ann[mask]
     if sub.empty:
-        return None
+        return None, False
     n = int(sub["n_cells"].sum())
     desc = "; ".join(f"cluster {r['leiden']} ({r['cell_type']}, {r['n_cells']} cells)"
                      for _, r in sub.iterrows())
@@ -103,9 +103,24 @@ def lineage_paragraph(name, keywords, canonical, context, cluster_ann, markers):
     canon_txt = (f" The canonical lineage markers {', '.join(canon_found)} "
                  "are among the strongest differentially expressed genes, "
                  "confirming the automated annotation.") if canon_found else ""
+    if name == "Monocytes" and len(sub) >= 2:
+        context += (" Both classical CD14+ and non-classical FCGR3A (CD16)+ "
+                    "subsets are resolved as distinct clusters.")
+    # Flag clusters whose markers contradict the automated label
+    caution = ""
+    for other_name, _, other_canon, _ in LINEAGES:
+        if other_name == name:
+            continue
+        hits = [g for g in other_canon if g in seen]
+        if len(hits) >= 2 and len(hits) > len(canon_found):
+            caution = (f" Caution: the top markers here are dominated by "
+                       f"{other_name}-associated genes ({', '.join(hits)}), so the "
+                       "automated label likely lumps or misassigns this population; "
+                       "manual curation is recommended before any biological claim.")
+            break
     return (f"**{name}** ({n} cells) were recovered in {desc}. Top marker "
             f"genes for these clusters include {', '.join(tops[:6])}.{canon_txt} "
-            f"{context}")
+            f"{context}{caution}"), bool(caution)
 
 
 def main():
@@ -142,30 +157,46 @@ def main():
         ["random seed", params["seed"]],
     ], columns=["parameter", "value"]))
 
+    dbl_rate = clu["n_doublets_detected"] / n_filt
+    exp_rate = clu["params"]["expected_doublet_rate"]
+    if dbl_rate < 0.5 * exp_rate:
+        dbl_note = (f"well below the configured expected rate of "
+                    f"{100 * exp_rate:.0f}% — Scrublet's automatic threshold was "
+                    "conservative")
+    elif dbl_rate > 1.5 * exp_rate:
+        dbl_note = (f"above the configured expected rate of {100 * exp_rate:.0f}%, "
+                    "which warrants inspection of the doublet score histogram")
+    else:
+        dbl_note = (f"in line with the configured expected rate of "
+                    f"{100 * exp_rate:.0f}%")
+
     interp = []
     interp.append(
         f"Starting from {pre['n_cells_raw']} barcoded cells, quality filtering "
         f"retained {n_filt} high-quality cells with a median of "
         f"{pre['median_genes_per_cell']:.0f} detected genes per cell. Scrublet "
         f"flagged {clu['n_doublets_detected']} predicted doublets "
-        f"({100 * clu['n_doublets_detected'] / n_filt:.1f}%), in line with the "
-        "expected multiplet rate of the 10x Chromium platform at this loading "
-        f"concentration. Leiden clustering of the remaining "
-        f"{clu['n_cells_after_doublet_removal']} cells resolved "
+        f"({100 * dbl_rate:.1f}%), {dbl_note}. Leiden clustering of the "
+        f"remaining {clu['n_cells_after_doublet_removal']} cells resolved "
         f"{clu['n_clusters']} transcriptionally distinct clusters, which "
         f"CellTypist ({args.model}) assigned to the expected PBMC lineages.")
+    any_caution = False
     for name, keywords, canonical, context in LINEAGES:
-        para = lineage_paragraph(name, keywords, canonical, context,
-                                 cluster_ann, markers)
+        para, had_caution = lineage_paragraph(name, keywords, canonical, context,
+                                              cluster_ann, markers)
         if para:
             interp.append(para)
+            any_caution = any_caution or had_caution
     top3 = ", ".join(f"{t} ({f})" for t, f in
                      zip(composition["cell type"].head(3), composition["fraction"].head(3)))
+    concordance = ("largely concordant with the reference-based CellTypist "
+                   "labels, with the exceptions flagged above" if any_caution else
+                   "concordant with the reference-based CellTypist labels")
     interp.append(
         f"Overall, the recovered composition — {top3} as the three largest "
         "populations — matches the expected makeup of peripheral blood from a "
-        "healthy donor, and cluster-resolved marker genes are concordant with "
-        "the reference-based CellTypist labels. Two caveats apply: this is a "
+        f"healthy donor, and cluster-resolved marker genes are {concordance}. "
+        "Two caveats apply: this is a "
         "single-donor, single-batch dataset, so no batch integration was "
         "required (with multiple samples, Harmony or scVI integration would "
         "precede clustering); and automated annotation is only as granular as "

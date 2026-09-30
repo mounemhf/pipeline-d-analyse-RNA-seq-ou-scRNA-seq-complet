@@ -1,0 +1,9 @@
+# Runner environment: the pinned Snakemake version used to execute the workflow.
+# Usage: mamba env create -f environment.yml && conda activate scrnaseq
+name: scrnaseq
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11.9
+  - snakemake=8.30.0

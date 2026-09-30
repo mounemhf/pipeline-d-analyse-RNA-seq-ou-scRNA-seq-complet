@@ -58,9 +58,14 @@ def main():
         majority_voting=args.majority_voting,
         over_clustering="leiden" if args.majority_voting else None,
     )
-    predictions.to_adata(adata, insert_conf=True)
-
+    # to_adata() does not take the target AnnData; copy the prediction
+    # columns explicitly (predicted_labels, majority_voting, conf_score)
     label_col = "majority_voting" if args.majority_voting else "predicted_labels"
+    insert_cols = ["predicted_labels", "conf_score"]
+    if args.majority_voting:
+        insert_cols.append("majority_voting")
+    adata.obs[insert_cols] = predictions.predicted_labels[insert_cols]
+
     adata.obs["cell_type"] = adata.obs[label_col]
     log.info("Predicted cell types: %s",
              adata.obs["cell_type"].value_counts().to_dict())

@@ -50,6 +50,7 @@ annotation:
 markers:
   n_genes: 25
   method: "wilcoxon"
+  exclude_regex: "^RP[SL]"   # ubiquitous genes excluded from marker exports
 
 # Figures
 figures:

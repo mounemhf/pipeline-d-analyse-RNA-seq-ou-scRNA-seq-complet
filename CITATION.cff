@@ -4,7 +4,7 @@ type: software
 title: "scrnaseq-pipeline: a reproducible single-cell RNA-seq analysis workflow (10x Genomics PBMC 3k)"
 authors:
   - given-names: "MOUNEM"
-    family-names: "HOUF" # replace with your last name before publishing
+    family-names: "HOUF"
 license: MIT
 version: 0.1.0
 repository-code: "https://github.com/mounemhf/pipeline-d-analyse-RNA-seq-ou-scRNA-seq-complet"

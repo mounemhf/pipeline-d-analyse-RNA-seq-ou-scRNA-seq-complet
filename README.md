@@ -61,14 +61,19 @@ download script fetches everything from the official 10x Genomics servers.
 
 ## Quickstart
 
-Requirements: `git`, `bash`, and [conda/mamba](https://docs.conda.io/) with
-Snakemake 8 available (`conda install -c conda-forge -c bioconda snakemake=8`).
+Requirements: **Linux or macOS** (on Windows, use WSL2 — Snakemake and
+bioconda do not run natively on Windows), `git`, `bash`, and
+[Miniforge](https://github.com/conda-forge/miniforge) (conda + mamba).
 
 ```bash
 git clone https://github.com/mounemhf/pipeline-d-analyse-RNA-seq-ou-scRNA-seq-complet.git
 cd pipeline-d-analyse-RNA-seq-ou-scRNA-seq-complet
 
-# 1. Download the data (matrix ~28 MB; add --with-fastq for read-level QC, ~4.5 GB)
+# 0. Create the pinned runner environment (Snakemake 8.30.0)
+mamba env create -f environment.yml
+conda activate scrnaseq
+
+# 1. Download the data (matrix ~28 MB; add --with-fastq for read-level QC, ~17 GB)
 bash data/download_data.sh --with-fastq
 
 # 2. Run the full pipeline
@@ -76,6 +81,11 @@ snakemake --use-conda --cores 4
 ```
 
 The final report is written to `report/report.md`.
+
+> **First run:** expect ~20-30 minutes, mostly one-time conda environment
+> creation; the analysis itself takes a few minutes on 4 cores. The first
+> `annotate` run also downloads the CellTypist reference models
+> (~200 MB, cached in `~/.celltypist`) — internet access is required once.
 
 ## Repository structure
 
@@ -117,11 +127,13 @@ raw data and intermediate results are regenerated on demand.
 ## Reproducibility
 
 - Every Snakemake rule runs in its own **pinned conda environment**
-  (`workflow/envs/`, no floating versions).
+  (`workflow/envs/`, exact versions, no floating pins); the workflow runner
+  itself is pinned in `environment.yml`.
 - All parameters live in `config/config.yaml`; the random seed is fixed.
 - One log file per rule under `results/logs/`.
-- Key versions: Python 3.11, Scanpy 1.10.4, Scrublet 0.2.3, CellTypist 1.6.3,
-  leidenalg 0.10.2, FastQC 0.12.1, MultiQC 1.25.1.
+- Key versions: Snakemake 8.30.0, Python 3.11.9, Scanpy 1.10.4, Scrublet 0.2.3,
+  CellTypist 1.6.3 (`Immune_All_High.pkl`), leidenalg 0.10.2, FastQC 0.12.1,
+  MultiQC 1.25.1.
 
 ## Citation
 

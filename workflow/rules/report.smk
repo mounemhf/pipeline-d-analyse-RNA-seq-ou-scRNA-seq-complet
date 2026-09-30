@@ -11,6 +11,16 @@ rule report:
         cluster_annotation=f"{TABLES}/cluster_annotation.csv",
         celltype_by_cluster=f"{TABLES}/celltype_by_cluster.csv",
         markers_top=f"{TABLES}/marker_genes_top{config['markers']['n_genes']}.csv",
+        figures=[
+            f"{FIGURES}/qc_violins_prefilter.png",
+            f"{FIGURES}/qc_violins_postfilter.png",
+            f"{FIGURES}/highly_variable_genes.png",
+            f"{FIGURES}/pca_variance_ratio.png",
+            f"{FIGURES}/doublet_histogram.png",
+            f"{FIGURES}/umap_clusters.png",
+            f"{FIGURES}/umap_celltypes.png",
+            f"{FIGURES}/marker_dotplot.png",
+        ],
     output:
         f"{REPORT_DIR}/report.md",
     params:
